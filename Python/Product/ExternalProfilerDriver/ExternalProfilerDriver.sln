@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2006
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalProfilerDriver", "ExternalProfilerDriver\ExternalProfilerDriver.csproj", "{09A40ADD-BF45-4D12-83DB-D1B38C7A61B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestExternalProfilerDriver", "TestExternalProfilerDriver\TestExternalProfilerDriver.csproj", "{13DADFFD-3957-486E-8976-73B8C5EB20BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{09A40ADD-BF45-4D12-83DB-D1B38C7A61B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09A40ADD-BF45-4D12-83DB-D1B38C7A61B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09A40ADD-BF45-4D12-83DB-D1B38C7A61B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09A40ADD-BF45-4D12-83DB-D1B38C7A61B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13DADFFD-3957-486E-8976-73B8C5EB20BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13DADFFD-3957-486E-8976-73B8C5EB20BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13DADFFD-3957-486E-8976-73B8C5EB20BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13DADFFD-3957-486E-8976-73B8C5EB20BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {284C4867-FA1C-400A-8716-4AE888D30737}
+	EndGlobalSection
+EndGlobal
