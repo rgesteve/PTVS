@@ -7,7 +7,8 @@ $need_symlink = @(
     "python",
     "MicroBuild.Core",
     "Microsoft.VSSDK.BuildTools",
-    "Newtonsoft.Json"
+    "Newtonsoft.Json",
+    "Microsoft.Extensions.CommandLineUtils"
 )
 
 if (-not $vstarget) {
