@@ -24,6 +24,8 @@
     
     <ProjectFile Include="EnvironmentsList\EnvironmentsList.csproj"/>
 
+    <ProjectFile Include="ExternalProfilerDriver\ExternalProfilerDriver.csproj" />
+
     <ProjectFile Include="TestAdapter\TestAdapter.csproj"/>
     <ProjectFile Include="TestAdapter.Analysis\TestAdapter.Analysis.csproj"/>
 
