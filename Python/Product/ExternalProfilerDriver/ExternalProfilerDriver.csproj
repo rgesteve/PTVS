@@ -51,6 +51,16 @@
       <HintPath>$(PackagesPath)\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="CommandLineParser">
+      <HintPath>$(PackagesPath)\CommandLineParser.2.2.1\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.DotNet.PlatformAbstractions">
+      <HintPath>$(PackagesPath)\Microsoft.DotNet.PlatformAbstractions.2.0.4\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  
+
     <!--
     <Reference Include="Utility.CommandLine.Arguments">
       <HintPath>$(PackagesPath)\Utility.CommandLine.Arguments.1.3.0\lib\Utility.CommandLine.Arguments.dll</HintPath>
@@ -65,13 +75,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <!--
-    <Compile Include="DWJsonModel.cs" />
     <Compile Include="VTuneInvoker.cs" />
+    <Compile Include="DWJsonModel.cs" />
     <Compile Include="ProcessAsyncRunner.cs" />
     <Compile Include="VTuneCPUUtilizationParser.cs" />
     <Compile Include="VTuneStackParser.cs" />
     <Compile Include="VTuneToDWJSON.cs" />
+    <!--
     <Compile Include="Properties\AssemblyInfo.cs" />
     -->
   </ItemGroup>

@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <IncludeTests Condition="'$(IncludeTests)' == ''">true</IncludeTests>
-    <IncludeSetup Condition="'$(IncludeSetup)' == ''">true</IncludeSetup>
+    <IncludeSetup Condition="'$(IncludeSetup)' == ''">false</IncludeSetup>
   </PropertyGroup>
 
   <ItemGroup>

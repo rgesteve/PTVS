@@ -22,121 +22,148 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#if false
 using CommandLine;
 using CommandLine.Text;
-#endif
 
 namespace Microsoft.PythonTools.Profiling.ExternalProfilerDriver {
-    class Program {
 
-        static void Main() {
-            Console.WriteLine("Testing");
-        }
+    class ProgramOptions {
+        [Option('p', "path", HelpText = "Report VTune path")]
+        public bool ReportVTunePath { get; set; }
 
-#if false
+        [Option('n', "dry-run", HelpText = "Whether I should execute or just pretend to execute")]
+        public bool DryRunRequested { get; set; }
 
-        // [Argument('p', "path")]
-        private static bool ReportVTunePath { get; set; }
+        [Option('c', "callstack", HelpText = "Specify the pre-generated callstack report to process")]
+        public string CallStackFNameToParse { get; set; }
 
-        // [Argument('n', "dry-run")]
-        private static bool DryRunRequested { get; set; }
-
-        // [Operands]
-        private static string[] RestArgs { get; set; }
-
-        static void PrintUsage() {
-        }
-
-        static int Main(string[] args)
-        {
-#if false
-            try
-            {
-                Arguments.Populate();
-            } catch (ArgumentException aex) {
-                Console.WriteLine($"Incorrect form of arguments: {aex.Message}");
-                return 1;
-            } catch (Exception ex)
-            {
-                Console.WriteLine("Unidentified error condition");
-                return 1;
-            }
-#endif
-
-            if (true || ReportVTunePath)
-            {
-                try
-                {
-                    Console.WriteLine($"The path of VTune is: {VTuneInvoker.VTunePath()}");
-                    return 0;
-                } catch (VTuneNotInstalledException ex)
-                {
-                    Console.WriteLine($"VTune not found in expected path: {ex.Message}");
-                    return 1;
-                }
-            }
-
-            string vtuneExec = VTuneInvoker.VTunePath();
-
-            VTuneCollectHotspotsSpec spec = new VTuneCollectHotspotsSpec()
-            {
-                WorkloadSpec = String.Join(" ", RestArgs)
-            };
-            string vtuneCollectArgs = spec.FullCLI();
-
-            VTuneReportCallstacksSpec repspec = new VTuneReportCallstacksSpec();
-            string vtuneReportArgs = repspec.FullCLI();
-
-            VTuneCPUUtilizationSpec reptimespec = new VTuneCPUUtilizationSpec();
-            string vtuneReportTimeArgs = reptimespec.FullCLI();
-
-            if (!DryRunRequested)
-            {
-                ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneCollectArgs);
-                ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneReportArgs);
-                ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneReportTimeArgs);
-            }
-
-            string tempOutDir = Environment.GetEnvironmentVariable("USERPROFILE");
-            string tempOutReportFName = "r_stacks_0001.csv";
-
-            VTuneReportCallstacksSpec repstackspec = new VTuneReportCallstacksSpec()
-            {
-                ReportOutputFile = Path.Combine(tempOutDir, tempOutReportFName)
-            };
-
-            if (!File.Exists(repstackspec.ReportOutputFile))
-            {
-                Console.WriteLine("Cannot find the VTune report, something went wrong with the profiler process.");
-                return 1;
-            } else
-            {
-                var samples = VTuneToDWJSON.ParseFromFile(repspec.ReportOutputFile);
-                foreach (var s in samples)
-                {
-                    Console.WriteLine("{0} : {1}", s.TOSFrame.Function, s.TOSFrame.CPUTime);
-                }
-            }
-
-            string tracejsonfname = Path.Combine(tempOutDir, "Sampletest.dwjson");
-            string cpujsonfname = Path.Combine(tempOutDir, "Sampletest.counters");
-
-            try
-            {
-                double timeTotal = VTuneToDWJSON.CSReportToDWJson(repspec.ReportOutputFile, tracejsonfname);
-                Console.WriteLine($"Time in seconds accounted: {timeTotal}");
-                VTuneToDWJSON.CPUReportToDWJson(reptimespec.ReportOutputFile, cpujsonfname, timeTotal);
-            } catch (Exception ex)
-            {
-                Console.WriteLine($"Errors occurred during the processing: {ex.Message}");
-                return 1;
-            }
-
-            Console.WriteLine("Done!");
-            return 0;
-        }
-#endif
-
+        [Value(0)]
+        public IEnumerable<string> Rest { get; set; }
     }
+
+    class Program {
+        static void Main(string[] args) {
+
+            var parser = new Parser(config => {
+                config.EnableDashDash = true;
+            });
+
+
+            var res = parser.ParseArguments<ProgramOptions>(args)
+                            .WithParsed<ProgramOptions>(opts => {
+
+                                if (opts.CallStackFNameToParse != null) {
+                                    // TODO: test /tmp/results_20180314/r_stacks_0004.csv
+#if false
+                                    ParseStackReport(opts.CallStackFNameToParse);
+#endif
+                                    Environment.Exit(0);
+                                }
+#if false
+
+                                string vtuneExec = "";
+                                try {
+                                    vtuneExec = VTuneInvoker.VTunePath();
+                                } catch (VTuneNotInstalledException ex) {
+                                    Console.WriteLine($"VTune not found in expected path: {ex.Message}");
+                                    Environment.Exit(1);
+                                }
+
+                                if (opts.ReportVTunePath)
+                                {
+                                    Console.WriteLine($"The path of VTune is: {vtuneExec}");
+                                    Environment.Exit(0);
+                                }
+
+                                var RestArgs = opts.Rest.ToList();
+                                VTuneCollectHotspotsSpec spec = new VTuneCollectHotspotsSpec()
+                                {
+                                    WorkloadSpec = String.Join(" ", RestArgs)
+                                };
+                                string vtuneCollectArgs = spec.FullCLI();
+
+                                VTuneReportCallstacksSpec repspec = new VTuneReportCallstacksSpec();
+                                string vtuneReportArgs = repspec.FullCLI();
+
+                                VTuneCPUUtilizationSpec reptimespec = new VTuneCPUUtilizationSpec();
+                                string vtuneReportTimeArgs = reptimespec.FullCLI();
+
+                                if (!opts.DryRunRequested) {
+#if false
+                                    Console.WriteLine($"Collect command line is: [ {vtuneExec} {vtuneCollectArgs} ]");
+                                    ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneCollectArgs);
+
+                                    Console.WriteLine($"Report callstacks line: [ {vtuneExec} {vtuneReportArgs} ]");
+                                    ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneReportArgs);
+
+                                    Console.WriteLine($"Report timing line: [ {vtuneExec} {vtuneReportTimeArgs} ]");
+                                    ProcessAsyncRunner.RunWrapper(vtuneExec, vtuneReportTimeArgs);
+#endif
+                                } else {
+                                    Console.WriteLine($"Collect command line is: [ {vtuneExec} {vtuneCollectArgs} ]");
+                                    Console.WriteLine("Report command lines");
+                                    Console.WriteLine($"[ {vtuneExec} {vtuneReportArgs} ]");
+                                    Console.WriteLine($"[ {vtuneExec} {vtuneReportTimeArgs} ]");
+
+                                    Environment.Exit(0);
+                                }
+
+                                var stackReportFName = repspec.ReportOutputFile;
+                                if (!File.Exists(stackReportFName)) {
+                                    Console.WriteLine("Cannot find the VTune report, something went wrong with the profiler process.");
+                                    Environment.Exit(1);
+                                }
+#endif
+
+                            })
+                            .WithNotParsed(errors => {
+                                Console.WriteLine("Incorrect command line.");
+                                Environment.Exit(1);
+                            });
+
+
+            Environment.Exit(0);
+        }
+
+#if false
+
+        private static void ParseStackReport(string fname)
+        {
+            string possibleFn = fname;
+            if (!File.Exists(possibleFn)) {
+                // The [old] argument parsing library chokes on absolute Linux paths (it gets confused apparently by leading '/')
+                possibleFn = Path.DirectorySeparatorChar + possibleFn;
+                if (!File.Exists(possibleFn))
+                {
+                    Console.WriteLine($"Cannot find {fname}");
+                    return;
+                }
+            }
+
+            try {
+                var samples = VTuneToDWJSON.ParseFromFile(possibleFn);
+                int sample_counter = 1;
+                foreach (var s in samples.Take(5))
+                {
+                    int current_top = sample_counter;
+                    //Console.WriteLine("{0}, {1}", s.TOSFrame.Function, s.TOSFrame.CPUTime);
+                    Console.WriteLine($"<tr data-tt-id=\"{current_top}\"><td>{s.TOSFrame.Function}</td><td>{s.TOSFrame.CPUTime}</td><td>{s.TOSFrame.Module}</td><td>{s.TOSFrame.FunctionFull}</td><td>{s.TOSFrame.SourceFile}</td><td>{s.TOSFrame.StartAddress}</td></tr>");
+                    foreach (var ss in s.Stacks.Take(1))
+                    {
+                        foreach (var p in ss.Take(5))
+                        {
+                            sample_counter += 1;
+                            //Console.WriteLine($"\t{p.Function}");
+                            Console.WriteLine($"<tr data-tt-id=\"{sample_counter}\" data-tt-parent-id=\"{current_top}\"><td>{p.Function}</td><td>{p.CPUTime}</td><td>{p.Module}</td><td>{p.FunctionFull}</td><td>{p.SourceFile}</td><td>{p.StartAddress}</td></tr>");
+                        }
+                    }
+                }
+                Console.WriteLine($"Got {samples.Count()} samples.");
+            } catch (Exception ex) {
+                Console.WriteLine($"Caught an error, with message: [{ex.StackTrace}]");
+            }
+        }
+#endif
+    }
+
 }
