@@ -166,16 +166,22 @@ namespace Microsoft.PythonTools.Profiling.ExternalProfilerDriver {
 
             List<FrameInfo> chains = new List<FrameInfo>();
             int idx = 0;
+            int frameCnt = 0;
             foreach (var s in samples) {
+                // TODO: Fix this logic (only works if s.Stacks.Count() is 1)
+                int sampleTimeCount = (int)fractional[frameCnt];
                 foreach (var y in s.Stacks) {
-                    var fi = new FrameInfo {
-                        timestamp = new LongInt(0, startime + stepsize * idx),
-                        frameIPs = y.Select(z => tr.Translate(z.Module, z.Function)).ToList()
-                    };
-                    fi.frameIPs.Insert(0, tr.Translate(s.TOSFrame.Module, s.TOSFrame.Function));
-                    chains.Add(fi);
+                    for (int cnt = 0; cnt < sampleTimeCount; cnt++) {
+                        var fi = new FrameInfo {
+                            timestamp = new LongInt(0, startime + stepsize * idx),
+                            frameIPs = y.Select(z => tr.Translate(z.Module, z.Function)).ToList()
+                        };
+                        fi.frameIPs.Insert(0, tr.Translate(s.TOSFrame.Module, s.TOSFrame.Function));
+                        chains.Add(fi);
 
-                    idx++;
+                        idx++;
+                    }
+                    frameCnt++;
                 }
             }
 
@@ -267,21 +273,27 @@ namespace Microsoft.PythonTools.Profiling.ExternalProfilerDriver {
             if (!Directory.Exists(symbolPath)) {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Strings.VTuneSympathNotFound, symbolPath));
             }
+            File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber has been called in directory [{symbolPath}]\n");
 
             Dictionary<string, Dictionary<string, FunctionSourceLocation> > sourcelocs = new Dictionary<string, Dictionary<string, FunctionSourceLocation> >();
-            string rootSymbolPath = Path.GetDirectoryName(symbolPath); // should really let the user choose this
+            string rootSymbolPath1 = Path.GetDirectoryName(symbolPath); // should really let the user choose this
+            string rootSymbolPath = @"C:\Users\perf\projects\examples\pybind";
+            File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber was going to use [{rootSymbolPath1}], now overriden to use [{rootSymbolPath}]\n");
             foreach (var modk in orig.Keys) {
                 try {
+                    File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber looking for module [{modk}]\n");
                     // 1. Finding the pdb file
                     string modfname = Path.ChangeExtension(modk, "pdb");
                     string fnd = Utils.FindFileInDir(modfname, rootSymbolPath);
                     // 2. Getting the symbols in the file
                     SymbolReader symReader = SymbolReader.Load(fnd);
                     var syms = symReader.FunctionLocations().ToList();
+                    File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber found {syms.Count} for this module.\n");
                     // 3. Get the information only for the functions that appear in the trace
                     var funlocs = orig[modk].Join(syms, f => f.Key, fi => fi.Function, (f, fi) => fi).ToList();
 
                     if (funlocs.Count() > 0) {
+                        File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber found more than one function.\n");
                         sourcelocs[modk] = new Dictionary<string, FunctionSourceLocation>();
                         //foreach ( var x in (orig[modk].Join(syms, f => f.Key, fi => fi.Function, (f, fi) => fi)) ) {
                         foreach ( var x in funlocs ) {
@@ -290,8 +302,9 @@ namespace Microsoft.PythonTools.Profiling.ExternalProfilerDriver {
                             sourcelocs[modk][x.Function] = x; // (Function, SourceFile, LineNumber)
                         }
                     }
-                } catch (Exception) {
+                } catch (Exception ex) {
                     // should probably log errors here
+                    File.AppendAllText(@"c:\users\perf\temp\test.log", $"AddLineNumber caught an exception looking at module [{modk}]: [{ex.Message}]\n");
                 }
             }
             return sourcelocs;

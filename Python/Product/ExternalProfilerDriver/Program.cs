@@ -136,6 +136,9 @@ namespace Microsoft.PythonTools.Profiling.ExternalProfilerDriver {
                 double runtime = VTuneToDWJSON.CSReportToDWJson(repspec.ReportOutputFile, Path.Combine(dwjsonDir,"Sample.dwjson"), spec.SymbolPath);
                 VTuneToDWJSON.CPUReportToDWJson(reptimespec.ReportOutputFile, Path.Combine(dwjsonDir, "Session.counters"), runtime);
 
+                /// 
+                File.AppendAllText(@"c:\users\perf\temp\test.log", $"This is just testing, the output directory is [{dwjsonDir}].\n");
+
             })
             .WithNotParsed(errors => {
                 Console.WriteLine(Strings.IncorrectCommandLine);
