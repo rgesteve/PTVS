@@ -42,14 +42,12 @@ namespace ProfilingTestsDeployment {
             AssertListener.Initialize();
         }
 
-#if false
         [TestMethod]
-        //[DeploymentItem("zlib_example.csv")]
         public void TestParsing()
         {
-            string filename = "zlib_example.csv";
-            int expected_sample_count = 5;
+            string filename = TestData.GetPath(@"TestData\ExternalProfilerDriverData\zlib_example.csv");
             Assert.IsTrue(File.Exists(filename));
+            int expected_sample_count = 5;
 
             var samples = VTuneToDWJSON.ParseFromFile(filename).ToList();
             Assert.AreEqual(samples.Count, expected_sample_count);
@@ -57,6 +55,8 @@ namespace ProfilingTestsDeployment {
             Assert.IsInstanceOfType(samples[0], typeof(SampleWithTrace));
 
             string known_module = "libz.so.1";
+            
+            // LCR this throws an exception, works on VSCode test
             var dict = VTuneToDWJSON.ModuleFuncDictFromSamples(samples);
             Assert.IsTrue(dict.ContainsKey(known_module));
 
@@ -69,12 +69,14 @@ namespace ProfilingTestsDeployment {
                     Trace.WriteLine($"Key: {vkk.Key}, Value: [{vkk.Value.FunctionName}, {vkk.Value.SourceFile}, {vkk.Value.LineNumber}]");
                 }
             }
-            // Works but this isnt used anywhere?
-            // This assert doesnt work?
-            // Assert.Throws<ArgumentException>(() => VTuneToDWJSON.AddLineNumbers(ref dict, "/etc/test"));
-            int initial_count = dict.Count;
-            //VTuneToDWJSON.AddLineNumbers(ref dict, "C:\\Users\\clairiky\\Documents\\zlib-1.2.11");
-            Assert.AreEqual(initial_count, dict.Count);
+
+            // LCR this assert doesnt work ? This works in my VScode test.
+            // Assert.ThrowsException<ArgumentException>(() => VTuneToDWJSON.AddLineNumbers(ref dict, "/etc/test"));
+            // int initial_count = dict.Count;
+
+            // LCR havent tested this one which will read windows pdbs.  
+            // VTuneToDWJSON.AddLineNumbers(ref dict, "C:\\Users\\clairiky\\Documents\\zlib-1.2.11");
+            // Assert.AreEqual(initial_count, dict.Count);
 
 
             foreach (var m in dict)
@@ -86,23 +88,21 @@ namespace ProfilingTestsDeployment {
                     Trace.WriteLine($"Key: {vkk.Key}, Value: [{vkk.Value.FunctionName}, {vkk.Value.SourceFile}, {vkk.Value.LineNumber}]");
                 }
             }
+
         }
-#endif
 
         [TestMethod]
-        //[DeploymentItem("r_stacks_0004.csv")]
-        //[DeploymentItem("zlib_example.csv")]
         public void TestParseFromFile()
         {
-            string filename = TestData.GetPath(@"TestData\ExternalProfilerDriverData\zlib_example.csv");
+            string filename = TestData.GetPath(@"TestData\ExternalProfilerDriverData\r_stacks_0000.csv");
             Assert.IsTrue(File.Exists(filename));
             //int expected_sample_count = 5;
-            // This function doesnt exists
-           // var samples = VTuneStackParser.ParseFromFile(filename).ToList();
+            //LCR This function doesnt exists in the PTVS version of VTuneStackParser. If we dont need it we can remove this test.
+            //var samples = VTuneStackParser.ParseFromFile(filename).ToList();
             //Assert.AreEqual(samples.Count, expected_sample_count);
         }
 
-#if false
+#if false // LCR this will be the tests that we need for SymbolReader.
         [TestMethod]
         [DeploymentItem("something.pdb")]
         public void LoadTest()

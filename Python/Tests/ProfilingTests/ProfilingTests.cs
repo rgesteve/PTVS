@@ -193,8 +193,7 @@ namespace ProfilingTests {
             string dwjsonPath = Path.Combine(tmpPath, timeStamp + "_Sample.dwjson");
             string counterPath = Path.Combine(tmpPath, timeStamp + "_Session.counters");
 
-            //// this fails here because VTuneToDWJSON.CSReportTODWJson is different ! ////
-
+            // LCR this fails here because VTuneToDWJSON.CSReportTODWJson is different ! //
             // double runtime = VTuneToDWJSON.CSReportToDWJson(repspec.ReportOutputFile, dwjsonPath); 
             // VTuneToDWJSON.CPUReportToDWJson(reptimespec.ReportOutputFile, counterPath, runtime);   
 
@@ -226,7 +225,7 @@ namespace ProfilingTests {
             int expected_size = 10;
             var sbs = new SequenceBaseSize();
             Assert.AreEqual(expected_size, 10);
-            /// SequenceBaseSize is different
+            /// LCR SequenceBaseSize is different, no Size property
             // Assert.AreEqual(sbs.Size, expected_size);
         }
 
